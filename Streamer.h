@@ -1,3 +1,10 @@
+/*
+ * mp3stream - encode /dev/dsp and send it to a shoutcast server
+ * 2005 - bl0rg.net - public domain
+ *
+ * Streamer.h - streamer abstraction
+ */
+
 #ifndef STREAMER_H__
 #define STREAMER_H__
 

@@ -1,3 +1,10 @@
+/*
+ * mp3stream - encode /dev/dsp and send it to a shoutcast server
+ * 2005 - bl0rg.net - public domain
+ *
+ * Url.cc - url implementation, a very dumb url parser.
+ */
+
 using namespace std;
 
 #include "Url.h"

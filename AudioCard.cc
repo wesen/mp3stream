@@ -1,3 +1,12 @@
+/*
+ * mp3stream - encode /dev/dsp and send it to a shoutcast server
+ * 2005 - bl0rg.net - public domain
+ *
+ * AudioCard.cc - audio card implementation, tested only using OSS
+ * under Linux. Please note that we support reading only 16-bit little
+ * endian values.
+ */
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -63,6 +72,8 @@ void AudioCard::SetFullDuplex() {
   }
 }
 
+/* Please note that we support reading only 16-bit little endian
+   values. */
 void AudioCard::SetFormat() {
   assert(fd > 0);
 
@@ -104,7 +115,7 @@ void AudioCard::SetSampleRate() {
 void AudioCard::Read(short sBuf[rawDataBlockSize / 2]) {
   assert(fd > 0);
 
-  unsigned char buf[rawDataBlockSize];
+  static unsigned char buf[rawDataBlockSize];
 
   int ret = read(fd, buf, rawDataBlockSize);
   if ((ret < 0) || ((unsigned int)ret != rawDataBlockSize))
@@ -118,7 +129,7 @@ void AudioCard::Read(short sBuf[rawDataBlockSize / 2]) {
   }
 
   for (unsigned int i = 0; i < rawDataBlockSize / 2; i++) {
-    /* we only support 16LE format */
+    /* we only support 16LE format, so swap the bytes */
     sBuf[i] = (buf[i*2] & 0xFF) | ((buf[i*2+1] & 0xFF) << 8);
   }
 }

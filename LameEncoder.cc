@@ -1,3 +1,11 @@
+/*
+ * mp3stream - encode /dev/dsp and send it to a shoutcast server
+ * 2005 - bl0rg.net - public domain
+ *
+ * LameEncoder.h - lame encoder implementation, calls the function
+ * from libmp3lame.
+ */
+
 #include "LameEncoder.h"
 
 using namespace std;

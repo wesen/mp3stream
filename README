@@ -1,0 +1,45 @@
+mp3stream
+---------
+
+mp3stream is a very simple tool designed to be a drop-in replacement
+for liveice. It reads audio data from the soundcard under Linux,
+encodes it using the lame encoder (by using the great libmp3lame
+library) and sends it to a shoutcast server. It can encode the data
+read from the soundcard in different qualities, and send it to
+different servers. This way, you can do all your livestream mixing
+with only one program.
+
+Usage
+-----
+
+mp3stream [-h] [-b bitrate] [-n name] [-g genre] [-p publicstr]
+          [-d description] [-c contentid] [-u url] [-t streamurl]
+
+-b bitrate: set the bitrate of the stream in kbps (default 128 kbps)
+
+To send streams to multiple url, specify one or more streamurls.
+The stream description will consist of the last parameters given.
+For example:
+
+mp3stream -b 128 -n "128 kbps" -t xaudio://localhost:8001/stream128
+          -b 64 -n "64 kbps" -t xaudio://localhost:8001/stream64
+
+will send a 128 kbps encoded stream to the icecast server under the
+mountpoint /stream128 and a 64 kbps encoded stream to the icecast server
+under the mountpoint /stream64.
+
+mp3stream can also log the encoded data to a file by using a file:/// URL.
+For example:
+
+mp3stream -b 128 -n "128 kbps" -t xaudio://localhost/bla -t file:///var/mp3-log.mp3
+
+will send the 128 kbps encoded data to localhost and log it into mp3-log.mp3.
+
+
+Boring stuff
+------------
+
+Written by Manuel Odendahl and Florian Wesch
+
+2005 - bl0rg.net
+This software is in the public domain. 

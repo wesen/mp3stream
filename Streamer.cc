@@ -1,3 +1,13 @@
+/*
+ * mp3stream - encode /dev/dsp and send it to a shoutcast server
+ * 2005 - bl0rg.net - public domain
+ *
+ * Streamer.cc - streamer implementation. Opens a connection to a
+ * shoutcast server, logs in using either the Icy Login protocol or
+ * the XAudio protocol, and streams data. The Streamer can also log to
+ * a file.
+ */
+
 #include <string>
 #include <sstream>
 using namespace std;

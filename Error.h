@@ -1,3 +1,10 @@
+/*
+ * mp3stream - encode /dev/dsp and send it to a shoutcast server
+ * 2005 - bl0rg.net - public domain
+ *
+ * Error.h - top Error class
+ */
+
 #ifndef ERROR_H__
 #define ERROR_H__
 

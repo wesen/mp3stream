@@ -1,3 +1,11 @@
+/*
+ * mp3stream - encode /dev/dsp and send it to a shoutcast server
+ * 2005 - bl0rg.net - public domain
+ *
+ * mp3stream.cc - main file, contains command-line option decoding and
+ * mainloop.
+ */
+
 #include <assert.h>
 #include <unistd.h>
 
@@ -25,7 +33,11 @@ static const string usageString =
 "          -b 64 -n \"64 kbps\" -t xaudio://localhost:8001/stream64\n\n"
 "will send a 128 kbps encoded stream to the icecast server under the\n"
 "mountpoint /stream128 and a 64 kbps encoded stream to the icecast server\n"
-"under the mountpoint /stream64.\n";
+"under the mountpoint /stream64.\n\n"
+"mp3stream can also log the encoded data to a file by using a file:/// URL.\n"
+"For example: \n\n"
+"mp3stream -b 128 -n \"128 kbps\" -t xaudio://localhost/bla -t file:///var/mp3-log.mp3\n\n"
+"will send the 128 kbps encoded data to localhost and log it into mp3-log.mp3.\n";
 
 static void usage(const char *program) {
   cerr << usageString;

@@ -1,6 +1,6 @@
 #CC=gcc-3.0
-CFLAGS += -Wall -g
-CXXFLAGS += -Wall -g
+CFLAGS += -Wall
+CXXFLAGS += -Wall
 
 OBJS := AudioCard.o \
 	Streamer.o \
@@ -16,4 +16,4 @@ mp3stream: $(OBJS) mp3stream.o
 	$(CXX) -o $@ mp3stream.o $(OBJS) -lmp3lame
 
 clean:
-	- rm -rf *.o mp3stream
+	- rm -rf *.o mp3stream urlTest
