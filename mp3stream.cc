@@ -40,13 +40,13 @@ static const string usageString =
 "mp3stream -b 128 -n \"128 kbps\" -t xaudio://localhost/bla -t file:///var/mp3-log.mp3\n\n"
 "will send the 128 kbps encoded data to localhost and log it into mp3-log.mp3.\n";
 
-static void usage(const char *program) {
+static void usage() {
   cerr << usageString;
 }
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
-    usage(argv[0]);
+    usage();
     return 1;
   }
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
   while ((c = getopt(argc, argv, "hb:n:g:p:d:c:u:t:v")) >= 0) {
     switch (c) {
     case 'h':
-      usage(argv[0]);
+      usage();
       return 0;
 
     case 'v':
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
     default:
       cerr << "Unknown switch " << c << endl;
-      usage(argv[0]);
+      usage();
       return 1;
     }
   }
