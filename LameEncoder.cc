@@ -3,7 +3,7 @@
 using namespace std;
 
 LameEncoder::LameEncoder(const AudioCard &audioCard, unsigned long bitrate,
-			 bool bInterleaved, int quality) :
+			 bool bSwapBytes, int quality) :
   gf(NULL), bSwapBytes(bSwapBytes), bitrate(bitrate) {
   gf = lame_init();
   if (gf == NULL)

@@ -144,6 +144,7 @@ int main(int argc, char *argv[]) {
       Streamer &streamer = *(*pStreamer);
       cout << "Logging in to streamer with host " << streamer.getHost() << endl;
       streamer.Login();
+      cout << "Logged in to streamer with host " << streamer.getHost() << endl;
     }
 
     /* main loop */
@@ -156,7 +157,7 @@ int main(int argc, char *argv[]) {
 	LameEncoder *encoder = p->first;
 	list<Streamer *> &l = p->second;
 
-	int ret = encoder->EncodeBuffer(buf, rawDataBlockSize,
+	int ret = encoder->EncodeBuffer(buf, sizeof(buf),
 				       mp3Buf, sizeof(mp3Buf));
 
 	if (ret > 0) {
