@@ -13,32 +13,23 @@ using namespace std;
 #include "Url.h"
 #include "LameEncoder.h"
 
-static void usage(char *program) {
-  cerr << "Usage: " << program;
-  cerr << " [-h] ";
-  cerr << "[-b bitrate] [-n name] [-g genre] [-p publicstr] ";
-  cerr << "[-d description] [-c contentid] [-u url] ";
-  cerr << "[-t streamurl]" << endl;
-  cerr << endl << "To send streams to multiple url, specify one or more streamurls." << endl;
-  cerr << "The stream description will consist of the last parameters given." << endl;
-  cerr << "For example: " <<endl;
-  cerr << program << " -b 128 -n \"128 kbps stream\" -t xaudio://localhost:8001/stream128 -b 64 -n \"64 kbps stream\" -t xaudio://localhost:8001/stream64" << endl;
-  cerr <<
-    "will send a 128 kbps encoded stream to the icecast server under the mountpoint " << endl <<
-    "/stream128 and a 64 kbps encoded stream to the icecast server under the mount /stream64." << endl;
-  // XXX defaults
+static const string usageString =
+"Usage:\n\n"
+"mp3stream [-h] [-b bitrate] [-n name] [-g genre] [-p publicstr]\n"
+"          [-d description] [-c contentid] [-u url] [-t streamurl]\n\n"
+"-b bitrate: set the bitrate of the stream in kbps (default 128 kbps)\n\n"
+"To send streams to multiple url, specify one or more streamurls.\n"
+"The stream description will consist of the last parameters given.\n"
+"For example: \n\n"
+"mp3stream -b 128 -n \"128 kbps\" -t xaudio://localhost:8001/stream128 \n"
+"          -b 64 -n \"64 kbps\" -t xaudio://localhost:8001/stream64\n\n"
+"will send a 128 kbps encoded stream to the icecast server under the\n"
+"mountpoint /stream128 and a 64 kbps encoded stream to the icecast server\n"
+"under the mountpoint /stream64.\n";
+
+static void usage(const char *program) {
+  cerr << usageString;
 }
-
-class StreamerEncoderPair {
-public:
-  Streamer &streamer;
-  LameEncoder &encoder;
-
-  StreamerEncoderPair(Streamer &streamer, LameEncoder &encoder) :
-    streamer(streamer), encoder(encoder) {
-  }
-  ~StreamerEncoderPair() { }
-};
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -54,6 +45,7 @@ int main(int argc, char *argv[]) {
   string url = "";
   string contentid = "";
   list<Streamer *> streamerList;
+  int retval = 0;
 
   int c;
   while ((c = getopt(argc, argv, "hb:n:g:p:d:c:u:t:")) >= 0) {
@@ -100,7 +92,8 @@ int main(int argc, char *argv[]) {
       } catch (Error &e) {
 	cerr << "Could not parse URL \"" << optarg << "\": "
 	     << e.getMessage() << endl;
-	return 1;
+	retval = 1;
+	goto exit;
       }
       break;
 
@@ -112,8 +105,16 @@ int main(int argc, char *argv[]) {
   }
 
   try {
-    AudioCard audioCard(false);
+    AudioCard *audioCard = NULL;
     map<LameEncoder *,list<Streamer *> > encoderMap;
+
+    try {
+      audioCard = new AudioCard(false);
+    } catch (AudioError &e) {
+      cerr << "Could not initialize soundcard: " << e.getMessage() << endl;
+      retval = 1;
+      goto exit;
+    }
 
     for (list<Streamer *>::iterator pStreamer = streamerList.begin();
 	 pStreamer != streamerList.end(); pStreamer++) {
@@ -126,32 +127,69 @@ int main(int argc, char *argv[]) {
 	const LameEncoder &encoder = *(p->first);
 	list<Streamer *> &listStreamer = p->second;
 	if (encoder.getBitrate() == bitrate) {
-	  cout << "adding stream" << endl;
 	  listStreamer.push_back((*pStreamer));
 	  break;
 	}
       }
       if (p == encoderMap.end()) {
-	LameEncoder *encoder = new LameEncoder(audioCard, bitrate);
-	cout << "Creating new encoder with bitrate " << bitrate << endl;
-	list<Streamer *> &listStreamer = encoderMap[encoder];
-	listStreamer.push_back((*pStreamer));
+	try {
+	  LameEncoder *encoder = new LameEncoder(*audioCard, bitrate);
+	  list<Streamer *> &listStreamer = encoderMap[encoder];
+	  listStreamer.push_back((*pStreamer));
+	} catch (LameError &e) {
+	  cerr << "Could not create an encoder with " << bitrate << " kbps: "
+	       << endl
+	       << "        " << e.getMessage() << endl;
+	  retval = 1;
+	  goto cleanup;
+	}
       }
+    }
+
+    /* Print information about setup */
+    cerr << endl
+	 << "Streaming setup:" << endl
+	 << "----------------" << endl;
+    
+    for (map<LameEncoder *,list<Streamer *> >::iterator p = encoderMap.begin();
+	 p != encoderMap.end(); p++) {
+      LameEncoder *encoder = p->first;
+      list<Streamer *> &l = p->second;
+
+      cerr << "Streaming " << encoder->getBitrate()
+	   << " kbps stream to: " << endl;
+      
+      for (list<Streamer *>::iterator pStreamer = l.begin();
+	   pStreamer != l.end(); pStreamer++) {
+	cerr << "  " << (*pStreamer)->getUrl()
+	     << " " << (*pStreamer)->getInfo() << endl;
+      }
+
+      cerr << endl;
     }
 
     for (list<Streamer *>::iterator pStreamer = streamerList.begin();
 	 pStreamer != streamerList.end(); pStreamer++) {
       Streamer &streamer = *(*pStreamer);
-      cout << "Logging in to streamer with host " << streamer.getHost() << endl;
-      streamer.Login();
-      cout << "Logged in to streamer with host " << streamer.getHost() << endl;
+      cerr << "Logging in to " << streamer.getUrl() << "... ";
+      try {
+	streamer.Login();
+      } catch (Error &e) {
+	cerr << endl;
+	cerr << "       " << e.getMessage() << endl;
+	retval = 1;
+	goto cleanup;
+      }
+      cerr << "OK" << endl;
     }
 
+    cerr << "Streaming..." << endl;
+    
     /* main loop */
     static unsigned char buf[rawDataBlockSize];
     static unsigned char mp3Buf[rawDataBlockSize];
     for (;;) {
-      audioCard.Read(buf);
+      audioCard->Read(buf);
       for (map<LameEncoder *,list<Streamer *> >::iterator p = encoderMap.begin();
 	   p != encoderMap.end(); p++) {
 	LameEncoder *encoder = p->first;
@@ -170,33 +208,26 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    /* XXX try catch an der richtigen stelle bitte */
-    
     /* cleanup */
-    map<LameEncoder *,list<Streamer *> >::iterator p;
-    for (p = encoderMap.begin();
+  cleanup:
+    for (map<LameEncoder *,list<Streamer *> >::iterator p = encoderMap.begin();
 	 p != encoderMap.end(); p++) {
       LameEncoder *encoder = p->first;
-      list<Streamer *> &l = p->second;
-      cout << "Encoder has " << l.size() << " streams" << endl;
-      cout << "Delete encoder with bitrate " << encoder->getBitrate() << endl;
       delete encoder;
     }
+    delete audioCard;
 
   } catch (Error &e) {
     cerr << e.getMessage() << endl;
-
-    for (list<Streamer *>::iterator pStreamer = streamerList.begin();
-	 pStreamer != streamerList.end(); pStreamer++) {
-      delete (*pStreamer);
-    }
-    return 1;
+    retval = 1;
+    goto exit;
   }
 
+ exit:
   for (list<Streamer *>::iterator pStreamer = streamerList.begin();
        pStreamer != streamerList.end(); pStreamer++) {
     delete (*pStreamer);
   }
 
-  return 0;
+  return retval;
 }

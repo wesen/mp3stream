@@ -89,6 +89,38 @@ void Streamer::OpenFile() {
   bLoggedIn = true;
 }
 
+string Streamer::getInfo() {
+  ostringstream out;
+  
+  if (stream.getName() != "") {
+    out << "(" << stream.getName() << ")";
+  } else {
+    out << "(<no description>)";
+  }
+
+  return out.str();
+}
+
+string Streamer::getUrl() {
+  ostringstream out;
+
+  switch (type) {
+  case IcyLoginType:
+    out << "icy://";
+    break;
+  case XAudioLoginType:
+    out << "xaudio://";
+    break;
+  case FileLoginType:
+    return "file:/" + path;
+  default:
+    throw StreamerError("Unknown login type");
+  }
+
+  out << host + ":" << port << path;
+  return out.str();
+}
+
 void Streamer::Connect() {
   if (fd != -1)
     throw StreamerError("Streamer already connected");

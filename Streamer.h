@@ -79,6 +79,8 @@ public:
   std::string getPath() const { return path; }
   std::string getPassword() const { return password; }
   unsigned long getBitrate() const { return stream.getBitrate(); }
+  std::string getUrl();
+  std::string getInfo();
 
   void Login();
   void Write(const unsigned char *buf, unsigned int len);
