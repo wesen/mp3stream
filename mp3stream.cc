@@ -24,8 +24,9 @@ using namespace std;
 static const string usageString =
 "Usage:\n\n"
 "mp3stream [-h] [-b bitrate] [-n name] [-g genre] [-p publicstr]\n"
-"          [-d description] [-c contentid] [-u url] [-t streamurl]\n\n"
-"-b bitrate: set the bitrate of the stream in kbps (default 128 kbps)\n\n"
+"          [-d description] [-c contentid] [-u url] [-t streamurl] [-v]\n\n"
+"-b bitrate: set the bitrate of the stream in kbps (default 128 kbps)\n"
+"-v: show visual feedback while encoding\n\n"
 "To send streams to multiple url, specify one or more streamurls.\n"
 "The stream description will consist of the last parameters given.\n"
 "For example: \n\n"
