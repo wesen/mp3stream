@@ -216,14 +216,12 @@ int main(int argc, char *argv[]) {
 	  if (abs(buf[i]) > maxVol)
 	    maxVol = abs(buf[i]);
 	}
-	cout << "\r                                                                       ";
-	if (maxVol > 32000) {
-	  cout << "\r*clip*";
-	} else {
-	  cout << "\r=";
-	  for (unsigned short j = 0; j <= maxVol; j += 500)
-	    cout << "=";
-	}
+	cout << "\r                                                                                     ";
+	cout << "\rLevel: ";
+	for (unsigned short j = 0; j <= maxVol; j += 550)
+	  cout << "=";
+	if (maxVol > 32000)
+	  cout << "*clip*";
 	cout.flush();
       }
       
