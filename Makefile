@@ -7,16 +7,13 @@ OBJS := AudioCard.o \
 	Url.o \
 	LameEncoder.o
 
-all: lame-test urlTest
+all: mp3stream
 
 urlTest: Url.o urlTest.o
 	$(CXX) -o $@ Url.o urlTest.o
 
 mp3stream: $(OBJS) mp3stream.o
-	$(CXX) -o $@ mp3stream.o $(OBJS)
-
-lame-test: $(OBJS) lame-test.o
-	$(CXX) -o $@ lame-test.o $(OBJS) -lmp3lame
+	$(CXX) -o $@ mp3stream.o $(OBJS) -lmp3lame
 
 clean:
-	- rm -rf *.o mp3stream lame-test
+	- rm -rf *.o mp3stream
