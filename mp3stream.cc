@@ -58,13 +58,18 @@ int main(int argc, char *argv[]) {
   string contentid = "";
   list<Streamer *> streamerList;
   int retval = 0;
+  bool bDisplay = false;
 
   int c;
-  while ((c = getopt(argc, argv, "hb:n:g:p:d:c:u:t:")) >= 0) {
+  while ((c = getopt(argc, argv, "hb:n:g:p:d:c:u:t:v")) >= 0) {
     switch (c) {
     case 'h':
       usage(argv[0]);
       return 0;
+
+    case 'v':
+      bDisplay = true;
+      break;
 
     case 'b':
       bitrate = atoi(optarg);
@@ -202,6 +207,25 @@ int main(int argc, char *argv[]) {
     static unsigned char mp3Buf[rawDataBlockSize];
     for (;;) {
       audioCard->Read(buf);
+
+      static int count = 0;
+      if (bDisplay && ((count++ % 300) == 0)) {
+	unsigned short maxVol = 0;
+	for (unsigned int i = 0; i < rawDataBlockSize / 2; i++) {
+	  if (abs(buf[i]) > maxVol)
+	    maxVol = abs(buf[i]);
+	}
+	cout << "\r                                                                       ";
+	if (maxVol > 32000) {
+	  cout << "\r*clip*";
+	} else {
+	  cout << "\r=";
+	  for (unsigned short j = 0; j <= maxVol; j += 500)
+	    cout << "=";
+	}
+	cout.flush();
+      }
+      
       for (map<LameEncoder *,list<Streamer *> >::iterator p = encoderMap.begin();
 	   p != encoderMap.end(); p++) {
 	LameEncoder *encoder = p->first;
