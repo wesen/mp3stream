@@ -35,8 +35,8 @@ int LameEncoder::EncodeBuffer(unsigned char input[],
     throw LameError("Lame encoder not initialized");
 
   unsigned long numSamples = inputSize / 2 / lame_get_num_channels(gf);
-  short sBuf[numSamples];
-  for (unsigned int i = 0; i < numSamples; i++) {
+  short sBuf[inputSize / 2];
+  for (unsigned int i = 0; i < inputSize / 2; i++) {
     if (bSwapBytes)
       sBuf[i] = (input[i*2] & 0xFF) | ((input[i*2+1] & 0xFF) << 8);
     else
