@@ -210,7 +210,7 @@ int main(int argc, char *argv[]) {
       audioCard->Read(buf);
 
       static int count = 0;
-      if (bDisplay && ((count++ % 300) == 0)) {
+      if (bDisplay && ((count++ % 5) == 0)) {
 	unsigned short maxVol = 0;
 	for (unsigned int i = 0; i < rawDataBlockSize / 2; i++) {
 	  if (abs(buf[i]) > maxVol)
@@ -232,7 +232,7 @@ int main(int argc, char *argv[]) {
 	LameEncoder *encoder = p->first;
 	list<Streamer *> &l = p->second;
 
-	int ret = encoder->EncodeBuffer(buf, sizeof(buf),
+	int ret = encoder->EncodeBuffer(buf, rawDataBlockSize / 2,
 				       mp3Buf, sizeof(mp3Buf));
 
 	if (ret > 0) {
