@@ -43,7 +43,7 @@ public:
     return sampleRate;
   }
 
-  void Read(unsigned char buf[rawDataBlockSize]);
+  void Read(short sBuf[rawDataBlockSize / 2]);
 };
 
 #endif // AUDIOCARD_H__

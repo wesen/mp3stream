@@ -186,7 +186,7 @@ int main(int argc, char *argv[]) {
     cerr << "Streaming..." << endl;
     
     /* main loop */
-    static unsigned char buf[rawDataBlockSize];
+    static short buf[rawDataBlockSize / 2];
     static unsigned char mp3Buf[rawDataBlockSize];
     for (;;) {
       audioCard->Read(buf);
@@ -208,7 +208,6 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    /* cleanup */
   cleanup:
     for (map<LameEncoder *,list<Streamer *> >::iterator p = encoderMap.begin();
 	 p != encoderMap.end(); p++) {

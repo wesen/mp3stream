@@ -101,8 +101,10 @@ void AudioCard::SetSampleRate() {
 		     string(strerror(errno)));
 }
 
-void AudioCard::Read(unsigned char buf[rawDataBlockSize]) {
+void AudioCard::Read(short sBuf[rawDataBlockSize / 2]) {
   assert(fd > 0);
+
+  unsigned char buf[rawDataBlockSize];
 
   int ret = read(fd, buf, rawDataBlockSize);
   if ((ret < 0) || ((unsigned int)ret != rawDataBlockSize))
@@ -113,6 +115,11 @@ void AudioCard::Read(unsigned char buf[rawDataBlockSize]) {
     if ((ret < 0) || ((unsigned int)ret != rawDataBlockSize))
       throw AudioError("Could not write to the soundcard (write): " +
 		       string(strerror(errno)));
+  }
+
+  for (unsigned int i = 0; i < rawDataBlockSize / 2; i++) {
+    /* we only support 16LE format */
+    sBuf[i] = (buf[i*2] & 0xFF) | ((buf[i*2+1] & 0xFF) << 8);
   }
 }
 

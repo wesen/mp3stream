@@ -3,8 +3,8 @@
 using namespace std;
 
 LameEncoder::LameEncoder(const AudioCard &audioCard, unsigned long bitrate,
-			 bool bSwapBytes, int quality) :
-  gf(NULL), bSwapBytes(bSwapBytes), bitrate(bitrate) {
+			 int quality) :
+  gf(NULL), bitrate(bitrate) {
   gf = lame_init();
   if (gf == NULL)
     throw LameError("Could not initialize lame library");
@@ -25,7 +25,7 @@ LameEncoder::~LameEncoder() {
     lame_close(gf);
 }
 
-int LameEncoder::EncodeBuffer(unsigned char input[],
+int LameEncoder::EncodeBuffer(short input[],
 			      unsigned long inputSize,
 			      unsigned char output[],
 			      unsigned long outputSize) {
@@ -34,16 +34,8 @@ int LameEncoder::EncodeBuffer(unsigned char input[],
   if (gf == NULL)
     throw LameError("Lame encoder not initialized");
 
-  unsigned long numSamples = inputSize / 2 / lame_get_num_channels(gf);
-  short sBuf[inputSize / 2];
-  for (unsigned int i = 0; i < inputSize / 2; i++) {
-    if (bSwapBytes)
-      sBuf[i] = (input[i*2] & 0xFF) | ((input[i*2+1] & 0xFF) << 8);
-    else
-      sBuf[i] = (input[i*2+1] & 0xFF) | ((input[i*2] & 0xFF) << 8);
-  }
-  
-  ret = lame_encode_buffer_interleaved(gf, sBuf, numSamples,
+  unsigned long numSamples = inputSize / lame_get_num_channels(gf);
+  ret = lame_encode_buffer_interleaved(gf, input, numSamples,
 				       output, outputSize);
   
   if (ret < 0) {

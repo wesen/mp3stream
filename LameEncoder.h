@@ -16,19 +16,17 @@ public:
 class LameEncoder {
 protected:
   lame_global_flags *gf;
-  bool bSwapBytes;
   unsigned long bitrate;
   
 public:
   LameEncoder(const AudioCard &card,
 	      unsigned long bitrate = 128,
-	      bool bSwapBytes = true,
 	      int quality = 5);
   ~LameEncoder();
 
   unsigned long getBitrate() const { return bitrate; }
   
-  int EncodeBuffer(unsigned char input[],
+  int EncodeBuffer(short input[],
 		   unsigned long inputSize,
 		   unsigned char output[],
 		   unsigned long outputSize);
